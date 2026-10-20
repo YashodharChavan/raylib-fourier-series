@@ -3,9 +3,9 @@ const g = require("./geometry");
 
 function initializeReadingLine(world) {
     return {
-        start: { 
-            x: world.windowWidth / 2.5, 
-            y: 50 
+        start: {
+            x: world.windowWidth / 2.5,
+            y: 50,
         },
         end: {
             x: world.windowWidth / 2.5,
@@ -68,7 +68,7 @@ function drawFourierCircles(world) {
     let posY = 0;
 
     for (let i = 0; i < world.circleCount; i++) {
-        radius /= 2 * i + 1;
+        radius = Math.ceil(radius / (2 * i + 1));
         posX = g.getXOnCircle(originX, radius, (2 * i + 1) * world.theta);
         posY = g.getYOnCircle(originY, radius, (2 * i + 1) * world.theta);
 
@@ -93,19 +93,29 @@ function visualizeFourierSeries(world) {
     r.DrawCircle(centerX, centerY, 5, r.RED);
     r.DrawLineEx(world.readingLine.start, world.readingLine.end, 1, r.WHITE);
 
-    for (let x = centerX; x < world.windowWidth; x += 0.5) {
-        const distance = x - centerX;
-        const angle = world.theta - distance;
+    for (let x = centerX; x < world.windowWidth; x += 0.125) {
+        // This part of calculating phaseOffset and angle was done in trial and error after getting a small hint from chatGPT. Earlier I was trying to draw sine wave without involvement of phase shift. In every increment of theta, the phase of sine wave changes. I have understood this part. 
+        const phaseOffset = x - centerX;
+
+        const angle = world.theta - phaseOffset;
         const radians = g.toRadians(angle);
 
         const originY = world.origin.y;
         const radius = world.radius;
 
         const Y =
-            originY - radius * fourierEquation(radians, world.circleCount);
+        originY - radius * fourierEquation(radians, world.circleCount);
 
         r.DrawCircle(x, Y, 1, r.WHITE);
     }
+}
+
+function joinPoints(world) {
+    const startX = world.readingPoint.x;
+    const endX = world.readingLine.start.x;
+    const commonY = world.readingPoint.y;
+
+    r.DrawLine(startX, commonY, endX, commonY, r.WHITE)
 }
 
 function draw(world) {
@@ -115,6 +125,7 @@ function draw(world) {
     drawCircle(world.origin, world.radius);
     drawFourierCircles(world);
     visualizeFourierSeries(world);
+    joinPoints(world);
 
     r.EndDrawing();
 }
