@@ -1,6 +1,19 @@
 const r = require("raylib");
 const g = require("./geometry");
 
+function initializeReadingLine(world) {
+    return {
+        start: { 
+            x: world.windowWidth / 2.5, 
+            y: 50 
+        },
+        end: {
+            x: world.windowWidth / 2.5,
+            y: world.windowHeight - 50,
+        },
+    };
+}
+
 function setup() {
     const world = {
         windowWidth: 1000,
@@ -13,14 +26,10 @@ function setup() {
             start: {},
             end: {},
         },
-        totalCircles: 2,
+        circleCount: 3,
     };
 
-    world.readingLine.start = { x: world.windowWidth / 2.5, y: 50 };
-    world.readingLine.end = {
-        x: world.windowWidth / 2.5,
-        y: world.windowHeight - 50,
-    };
+    world.readingLine = initializeReadingLine(world);
 
     world.origin.x = world.windowWidth / 5;
     world.origin.y = world.windowHeight / 2;
@@ -50,7 +59,7 @@ function drawCircle(origin, radius) {
     r.DrawRing(origin, radius - 0.5, radius + 0.5, 0, 360, 80, r.WHITE);
 }
 
-function drawReadingPoint(world) {
+function drawFourierCircles(world) {
     let originX = world.origin.x;
     let originY = world.origin.y;
     let radius = world.radius;
@@ -58,7 +67,7 @@ function drawReadingPoint(world) {
     let posX = 0;
     let posY = 0;
 
-    for (let i = 0; i < world.totalCircles; i++) {
+    for (let i = 0; i < world.circleCount; i++) {
         radius /= 2 * i + 1;
         posX = g.getXOnCircle(originX, radius, (2 * i + 1) * world.theta);
         posY = g.getYOnCircle(originY, radius, (2 * i + 1) * world.theta);
@@ -77,36 +86,26 @@ function drawReadingPoint(world) {
     r.DrawCircleV(world.readingPoint, 5, r.RED);
 }
 
-function drawPointOnReadingLine(world) {
+function visualizeFourierSeries(world) {
     const centerX = world.readingLine.start.x;
     const centerY = world.readingPoint.y;
 
     r.DrawCircle(centerX, centerY, 5, r.RED);
+    r.DrawLineEx(world.readingLine.start, world.readingLine.end, 1, r.WHITE);
 
     for (let x = centerX; x < world.windowWidth; x += 0.5) {
         const distance = x - centerX;
         const angle = world.theta - distance;
+        const radians = g.toRadians(angle);
+
         const originY = world.origin.y;
         const radius = world.radius;
 
         const Y =
-            world.origin.y -
-            world.radius *
-                fourierEquation((angle * Math.PI) / 180, world.totalCircles);
-
-        // const Y =
-        //     originY - radius * Math.sin(Math.PI + (angle * Math.PI) / 180)
-        // fourierEquation(
-        //     Math.PI + (angle * Math.PI) / 180,
-        //     world.totalCircles,
-        // );
+            originY - radius * fourierEquation(radians, world.circleCount);
 
         r.DrawCircle(x, Y, 1, r.WHITE);
     }
-}
-
-function drawReadingLine(world) {
-    r.DrawLineEx(world.readingLine.start, world.readingLine.end, 1, r.WHITE);
 }
 
 function draw(world) {
@@ -114,9 +113,8 @@ function draw(world) {
     r.ClearBackground(r.BLACK);
 
     drawCircle(world.origin, world.radius);
-    drawReadingPoint(world);
-    drawReadingLine(world);
-    drawPointOnReadingLine(world);
+    drawFourierCircles(world);
+    visualizeFourierSeries(world);
 
     r.EndDrawing();
 }
