@@ -50,32 +50,6 @@ function drawCircle(origin, radius) {
     r.DrawRing(origin, radius - 0.5, radius + 0.5, 0, 360, 80, r.WHITE);
 }
 
-// function drawReadingPoint(world) {
-//     let originX = world.origin.x;
-//     let originY = world.origin.y;
-//     let radius = world.radius;
-
-//     let posX = g.getXOnCircle(world.origin.x, world.radius, world.theta);
-//     let posY = g.getYOnCircle(world.origin.y, world.radius, world.theta);
-
-//     for (let i = 0; i < world.totalCircles; i++) {
-//         radius /= 2 * i + 1;
-
-//         originX = posX;
-//         originY = posY;
-//         drawCircle({ x: originX, y: originY }, radius);
-
-//         posX = g.getXOnCircle(originX, radius, (2 * i + 1) * world.theta);
-//         posY = g.getYOnCircle(originY, radius, (2 * i + 1) * world.theta);
-//     }
-
-//     world.readingPoint = {
-//         x: posX,
-//         y: posY,
-//     };
-
-//     r.DrawCircleV(world.readingPoint, 5, r.RED);
-// }
 function drawReadingPoint(world) {
     let originX = world.origin.x;
     let originY = world.origin.y;
@@ -84,7 +58,7 @@ function drawReadingPoint(world) {
     let posX = 0;
     let posY = 0;
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < world.totalCircles; i++) {
         radius /= 2 * i + 1;
         posX = g.getXOnCircle(originX, radius, (2 * i + 1) * world.theta);
         posY = g.getYOnCircle(originY, radius, (2 * i + 1) * world.theta);
